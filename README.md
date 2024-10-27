@@ -6,9 +6,7 @@
 
 在Terminal選擇存放檔案的資料夾並執行git clone https://github.com/yogi0405113031/PizzaDemo.git
 
-打開PizzaDemo.sln並點擊紅框圖示以執行應用程式
-
-![image](https://github.com/user-attachments/assets/4c74e7d2-745c-4a13-bf86-ea6d71808243)   
+打開PizzaDemo.sln並執行應用程式
 
 註冊完帳號後可以開始點餐,如不想註冊帳號可以使用以下管理者帳號:
 
