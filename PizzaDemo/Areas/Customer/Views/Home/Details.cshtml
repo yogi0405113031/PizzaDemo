@@ -1,0 +1,121 @@
+﻿@using PizzaDemo.Models
+@model ShoppingCart
+
+<form method="post">
+    <input hidden asp-for="ProductId"/>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-7 col-lg-7">
+                        <div class="row align-items-center">
+                            <div class="col-6"><h3 class="mb-0">@Model.Product.Name</h3></div>
+                            <div class="col-6 text-end"><span class="badge bg-info"><h6 class="mb-0">@Model.Product.Category.Name</h6></span></div>
+                        </div>
+                        <div class="row">
+                            <h6 class="my-2">【@Model.Product.Description】</h6>
+                        </div>
+                        <div class="accordion" id="accordionExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        尺寸 Size
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="SmallSize">
+                                                小 Small
+                                            </label>
+                                            <input asp-for="Size" class="form-check-input" type="radio" name="size" id="SmallSize" value="小 Small" checked>
+                                        </div>
+                                        <hr />
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="MediumSize">
+                                                中 Medium
+                                            </label>
+                                            <input asp-for="Size" class="form-check-input" type="radio" name="size" id="MediumSize" value="中 Medium">
+                                        </div>
+                                        <hr />
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="LargeSize">
+                                                大 Large
+                                            </label>
+                                            <input asp-for="Size" class="form-check-input" type="radio" name="size" id="LargeSize" value="大 Large">
+                                        </div>
+                                        <hr />
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="FamilySize">
+                                                家庭號 Family Size
+                                            </label>
+                                            <input asp-for="Size" class="form-check-input" type="radio" name="size" id="FamilySize" value="家庭號 Family Size">
+                                        </div>
+                                        <hr />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        餅皮 Crust
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="ThinCrust">
+                                                薄皮 Thin Crust
+                                            </label>
+                                            <input asp-for="Crust" class="form-check-input" type="radio" name="crust" id="ThinCrust" value="薄皮 Thin Crust" checked>
+                                        </div>
+                                        <hr />
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="lessSugar">
+                                                厚皮 Thick Crust
+                                            </label>
+                                            <input asp-for="Crust" class="form-check-input" type="radio" name="crust" id="ThickCrust" value="厚皮 Thick Crust">
+                                        </div>
+                                        <hr />
+                                        <div class="form-check ps-1 my-3 d-flex justify-content-between">
+                                            <label class="form-check-label" for="CrispyCrust">
+                                                脆皮 Crispy Crust
+                                            </label>
+                                            <input asp-for="Crust" class="form-check-input" type="radio" name="crust" id="CrispyCrust" value="脆皮 Crispy Crust">
+                                        </div>
+                                        <hr />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        數量 Count
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <input asp-for="Count" class="form-control mt-2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5 align-self-start">
+                        <img src="@Model.Product.ImageUrl" width="100%" class="rounded" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white mt-5 mb-3">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-6 pb-1">
+                    <a class="btn btn-light form-control text-primary d-flex justify-content-center align-items-center" style="height:50px;" asp-action="Index">返回列表</a>
+                </div>
+                <div class="col-12 col-md-6 pb-1">
+                    <button type="submit" value="Add to Cart" class="btn btn-primary form-control" style="height:50px;">加入購物車</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
