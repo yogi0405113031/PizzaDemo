@@ -19,7 +19,7 @@ namespace PizzaDemo.Models
         public Product Product { get; set; }
         [Range(1, 100, ErrorMessage = "請輸入1-100的數字")]
         public int Count { get; set; }
-        public string Size { get; set; }
+        public string Cheese { get; set; }
         public string Crust { get; set; }
         public string ApplicationUserId { get; set; }
         [ForeignKey("ApplicationUserId")]

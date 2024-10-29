@@ -88,7 +88,7 @@ namespace PizzaDemo.Areas.Customer.Controllers
 				{
 					ProductId = cart.ProductId,
 					OrderHeaderId = ShoppingCartVM.OrderHeader.Id,
-					Size = cart.Size,
+                    Cheese = cart.Cheese,
 					Crust = cart.Crust,
 					Price = cart.Product.Price,
 					Count = cart.Count

@@ -45,7 +45,7 @@ namespace PizzaDemo.Areas.Customer.Controllers
 
             shoppingCart.ApplicationUserId = userId;
 
-            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ApplicationUser.Id == userId && u.ProductId == shoppingCart.ProductId && u.Size == shoppingCart.Size && u.Crust == shoppingCart.Crust);
+            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ApplicationUser.Id == userId && u.ProductId == shoppingCart.ProductId && u.Cheese == shoppingCart.Cheese && u.Crust == shoppingCart.Crust);
             if (cartFromDb != null)
             {
                 cartFromDb.Count += shoppingCart.Count;

@@ -25,7 +25,7 @@ namespace PizzaDemo.Models
         public int Count { get; set; }
         public double Price { get; set; }
         public string Crust { get; set; }
-        public string Size { get; set; }
+        public string Cheese { get; set; }
     }
 
 }
