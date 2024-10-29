@@ -56,11 +56,26 @@
                     <hr />
                 }
                 <div class="row">
+                    <div class="col-12 col-md-6 col-lg-4 pl-4">
+                        <ul class="list-group">
+                            <li class="list-group-item bg-light">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-info">折扣碼</span>
+                                    <span id="discountAmount" class="text-info">$0</span>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" id="couponCode" class="form-control" placeholder="請輸入折扣碼">
+                                    <button class="btn btn-primary" type="button" onclick="applyCoupon()">套用</button>
+                                </div>
+                                <small id="couponMessage" class="text-danger"></small>
+                            </li>
+                        </ul>
+                    </div>
                     <div class="col-12 col-md-6 offset-md-6 col-lg-4 offset-lg-8 pr-4">
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between bg-light">
                                 <span class="text-info"> 總金額 (NT)</span>
-                                <strong class="text-info">@Model.OrderHeader.OrderTotal.ToString("c")</strong>
+                                <strong class="text-info" id="orderTotal">@Model.OrderHeader.OrderTotal.ToString("c")</strong>
                             </li>
                         </ul>
                     </div>
@@ -78,3 +93,6 @@
         </div>
     </div>
 </form>
+@section Scripts {
+    <script src="~/js/coupon.js"></script>
+}

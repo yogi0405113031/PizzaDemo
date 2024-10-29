@@ -134,6 +134,33 @@ namespace PizzaDemo.Areas.Customer.Controllers
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        public IActionResult ApplyCoupon(string code, int orderId)
+        {
+            if (code.ToUpper() == "SAVE100")
+            {
+                var order = _unitOfWork.OrderHeader.Get(o => o.Id == orderId);
+                if (order != null)
+                {
+                    order.OrderTotal -= 100;
+                    _unitOfWork.Save();
+
+                    return Json(new
+                    {
+                        success = true,
+                        discount = 100,
+                        newTotal = order.OrderTotal,
+                        message = "折扣碼套用成功！"
+                    });
+                }
+            }
+
+            return Json(new
+            {
+                success = false,
+                message = "無效的折扣碼"
+            });
+        }
         public IActionResult Remove(int cartId)
         {
             var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);
