@@ -15,64 +15,66 @@ namespace PizzaDemo.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
-    public class ProductController : Controller
+    public class TeamMemberController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public TeamMemberController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
-            List<Product> productlist = _unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
-            return View(productlist);
+            List<TeamMember> teammemberlist = _unitOfWork.TeamMember.GetAll().ToList();
+            return View(teammemberlist);
         }
         public IActionResult Upsert(int? id)
         {
-            ProductVM productVM = new()
-            {
-                CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
-                {
-                    Text = u.Name,
-                    Value = u.Id.ToString()
-                }),
-                Product = new Product()
-            };
             if (id == null || id == 0)
             {
-                return View(productVM);
+                return View(new TeamMember());
             }
             else
             {
-                //編輯
-                productVM.Product = _unitOfWork.Product.Get(u => u.Id == id);
-                return View(productVM);
+                var teamMember = _unitOfWork.TeamMember.Get(u => u.Id == id);
+                return View(teamMember);
             }
         }
-        [HttpPost]
-        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
-        {
 
+        [HttpPost]
+        public IActionResult Upsert(TeamMember teamMember, IFormFile? file)
+        {
             if (ModelState.IsValid)
             {
                 string wwwRootPath = _webHostEnvironment.WebRootPath;
                 if (file != null)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string productPath = Path.Combine(wwwRootPath, @"images\product");
+                    string teamMemberPath = Path.Combine(wwwRootPath, "images", "team");
 
-                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+                    // 確保目錄存在
+                    if (!Directory.Exists(teamMemberPath))
                     {
-                        var oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
+                        Directory.CreateDirectory(teamMemberPath);
+                    }
+
+                    // 刪除舊圖片
+                    if (!string.IsNullOrEmpty(teamMember.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath,
+                            teamMember.ImageUrl.TrimStart('/', '\\').Replace("/", Path.DirectorySeparatorChar.ToString()));
                         if (System.IO.File.Exists(oldImagePath))
                         {
                             System.IO.File.Delete(oldImagePath);
                         }
                     }
+
+                    string filePath = Path.Combine(teamMemberPath, fileName);
+
                     try
                     {
+                        // 使用 ImageSharp 處理圖片
                         using (var image = Image.Load(file.OpenReadStream()))
                         {
                             // 設定最大尺寸
@@ -96,72 +98,73 @@ namespace PizzaDemo.Areas.Admin.Controllers
                             }
 
                             // 保存圖片
-                            image.Save(Path.Combine(productPath, fileName));
+                            image.Save(filePath);
                         }
+
+                        teamMember.ImageUrl = "/images/team/" + fileName;
                     }
                     catch (Exception ex)
                     {
+                        // 處理圖片處理過程中可能發生的錯誤
                         ModelState.AddModelError("", "圖片處理過程中發生錯誤: " + ex.Message);
-                        productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
-                        {
-                            Text = u.Name,
-                            Value = u.Id.ToString()
-                        });
-                        return View(productVM);
+                        return View(teamMember);
                     }
-
-                    productVM.Product.ImageUrl = @"\images\product\" + fileName;
                 }
-                if (productVM.Product.Id == 0)
+
+                // 新增或更新
+                if (teamMember.Id == 0)
                 {
-                    _unitOfWork.Product.Add(productVM.Product);
+                    _unitOfWork.TeamMember.Add(teamMember);
+                    TempData["success"] = "團隊成員新增成功！";
                 }
                 else
                 {
-                    _unitOfWork.Product.Update(productVM.Product);
+                    _unitOfWork.TeamMember.Update(teamMember);
+                    TempData["success"] = "團隊成員更新成功！";
                 }
+
                 _unitOfWork.Save();
-                TempData["success"] = "產品新增成功！";
                 return RedirectToAction("Index");
             }
-            else
-            {
-                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
-                {
-                    Text = u.Name,
-                    Value = u.Id.ToString()
-                });
-                return View(productVM);
-            }
+
+            return View(teamMember);
         }
 
         #region API CALLS
+
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
-            return Json(new { data = objProductList });
+            var teamMembers = _unitOfWork.TeamMember.GetAll().ToList();
+            return Json(new { data = teamMembers });
         }
+
         [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            var productToBeDeleted = _unitOfWork.Product.Get(u => u.Id == id);
-            if (productToBeDeleted == null)
+            var teamMember = _unitOfWork.TeamMember.Get(u => u.Id == id);
+            if (teamMember == null)
             {
                 return Json(new { success = false, message = "刪除失敗" });
             }
 
-            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productToBeDeleted.ImageUrl.TrimStart('\\'));
-            if (System.IO.File.Exists(oldImagePath))
+            // 刪除圖片
+            if (!string.IsNullOrEmpty(teamMember.ImageUrl))
             {
-                System.IO.File.Delete(oldImagePath);
+                var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath,
+                    teamMember.ImageUrl.TrimStart('/', '\\').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
             }
 
-            _unitOfWork.Product.Remove(productToBeDeleted);
+            _unitOfWork.TeamMember.Remove(teamMember);
             _unitOfWork.Save();
 
             return Json(new { success = true, message = "刪除成功" });
         }
+
         #endregion
     }
 }

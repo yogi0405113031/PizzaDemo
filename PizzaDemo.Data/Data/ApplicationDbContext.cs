@@ -19,6 +19,7 @@ namespace PizzaDemo.DataAccess.Data
         public DbSet<ShoppingCart> shoppingCarts { get; set; }
         public DbSet<OrderHeader> OrderHeaders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<TeamMember> TeamMembers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,13 +57,31 @@ namespace PizzaDemo.DataAccess.Data
                     Description = "撒上鮮美的蘑菇與菠菜和番茄，再加上BBQ素醬，素食口味披薩讓你吃到蔬菜的清爽美味。",
                     Price = 260,
                     CategoryId = 2,
-                    ImageUrl = "\\images\\product\\2376d0c5-785c-475c-9bdf-526670bb6640.png"
+                    ImageUrl = "\\images\\product\\80f2b999-1a13-4915-92be-f03e44c7ff83.png"
                 }
                 );
             modelBuilder.Entity<Store>().HasData(
-               new Store { Id = 1, Name = "竹北中華店", Address = "新竹縣竹北市中華路391號", City = "新竹縣", PhoneNumber = "0987654321"},
-               new Store { Id = 2, Name = "光復餐廳店", Address = "台北市大安區忠孝東路四段341號2樓", City = "台北市", PhoneNumber = "0911111111"}
+                   new Store { Id = 1, Name = "竹北中華店", Address = "新竹縣竹北市中華路391號", City = "新竹縣", PhoneNumber = "0987654321"},
+                   new Store { Id = 2, Name = "光復餐廳店", Address = "台北市大安區忠孝東路四段341號2樓", City = "台北市", PhoneNumber = "0911111111"}
                );
+            modelBuilder.Entity<TeamMember>().HasData(
+                new TeamMember 
+                {
+                    Id = 1,
+                    Name = "王曉明",
+                    Position = "主廚",
+                    Introduction = "對披薩烹飪充滿熱情，樂於嘗試新事物、接受顧客的建議並持續改進。他認為好的披薩應該不僅滿足顧客的味蕾，更能帶給顧客幸福感。",
+                    ImageUrl = "/images/team/21b2d8dd-7877-4c4e-81ea-51a4673b7110.jpg"
+                },
+                new TeamMember 
+                { 
+                    Id = 2,
+                    Name = "陳大鵬",
+                    Position = "副主廚",
+                    Introduction = "熱愛披薩料理，致力於創新和優化口味。他在工作中注重細節並保持積極學習的態度，並相信每一款披薩都應該展現出料理人的用心和對品質的追求。",
+                    ImageUrl = "/images/team/c778129f-12f4-4646-a127-22bf43137f15.jpg"
+                }
+                );
         }
     }
 

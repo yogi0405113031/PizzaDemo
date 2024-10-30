@@ -1,0 +1,128 @@
+﻿@model List<TeamMember>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 text-primary">我們的披薩團隊</h1>
+        <p class="lead">由專業且充滿熱情的團隊為您提供最美味的披薩</p>
+
+        @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee) || User.IsInRole(SD.Role_Manager))
+        {
+            <a asp-area="Admin" asp-controller="TeamMember" asp-action="Upsert" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 新增團隊成員
+            </a>
+        }
+    </div>
+
+    <div class="row g-4">
+        @foreach (var member in Model)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee) || User.IsInRole(SD.Role_Manager))
+                    {
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <div class="btn-group">
+                                <a asp-area="Admin" asp-controller="TeamMember" asp-action="Upsert" asp-route-id="@member.Id"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger"
+                                        onclick="deleteTeamMember(@member.Id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="position-relative">
+                        @if (string.IsNullOrEmpty(member.ImageUrl))
+                        {
+                            <img src="~/images/team/default-team-member.jpg" class="card-img-top" alt="@member.Name">
+                        }
+                        else
+                        {
+                            <img src="@member.ImageUrl" class="card-img-top" alt="@member.Name">
+                        }
+                    </div>
+
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-0">@member.Name</h5>
+                        <p class="text-muted small mb-2">@member.Position</p>
+
+                        <p class="card-text">
+                            @if (string.IsNullOrEmpty(member.Introduction))
+                            {
+                                <span class="text-muted">暫無介紹</span>
+                            }
+                            else
+                            {
+                                @member.Introduction
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .img-loading {
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+
+        .card {
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .position-absolute {
+            z-index: 10;
+        }
+
+        .btn-group .btn {
+            transition: all 0.2s ease;
+        }
+
+            .btn-group .btn:hover {
+                transform: scale(1.1);
+            }
+
+        .position-relative {
+            z-index: 1;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .card-img-top {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .card-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .btn-group {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 0.25rem;
+            padding: 2px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/team-list.js"></script>
+}

@@ -17,6 +17,7 @@ namespace PizzaDemo.DataAccess.Repository.IRepository
         IApplicationUserRepository ApplicationUser { get; }
         IOrderDetailRepository OrderDetail { get; }
         IOrderHeaderRepository OrderHeader { get; }
+        ITeamMemberRepository TeamMember { get; }
         void Save();
     }
 }

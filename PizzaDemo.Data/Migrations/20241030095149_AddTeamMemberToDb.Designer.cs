@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PizzaDemo.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using PizzaDemo.DataAccess.Data;
 namespace PizzaDemo.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241030095149_AddTeamMemberToDb")]
+    partial class AddTeamMemberToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -404,7 +407,7 @@ namespace PizzaDemo.DataAccess.Migrations
                             Id = 3,
                             CategoryId = 2,
                             Description = "撒上鮮美的蘑菇與菠菜和番茄，再加上BBQ素醬，素食口味披薩讓你吃到蔬菜的清爽美味。",
-                            ImageUrl = "\\images\\product\\80f2b999-1a13-4915-92be-f03e44c7ff83.png",
+                            ImageUrl = "\\images\\product\\2376d0c5-785c-475c-9bdf-526670bb6640.png",
                             Name = "彩蔬鮮菇",
                             Price = 260.0
                         });
@@ -521,7 +524,7 @@ namespace PizzaDemo.DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            ImageUrl = "/images/team/21b2d8dd-7877-4c4e-81ea-51a4673b7110.jpg",
+                            ImageUrl = "",
                             Introduction = "對披薩烹飪充滿熱情，樂於嘗試新事物、接受顧客的建議並持續改進。他認為好的披薩應該不僅滿足顧客的味蕾，更能帶給顧客幸福感。",
                             Name = "王曉明",
                             Position = "主廚"
@@ -529,7 +532,7 @@ namespace PizzaDemo.DataAccess.Migrations
                         new
                         {
                             Id = 2,
-                            ImageUrl = "/images/team/c778129f-12f4-4646-a127-22bf43137f15.jpg",
+                            ImageUrl = "",
                             Introduction = "熱愛披薩料理，致力於創新和優化口味。他在工作中注重細節並保持積極學習的態度，並相信每一款披薩都應該展現出料理人的用心和對品質的追求。",
                             Name = "陳大鵬",
                             Position = "副主廚"
