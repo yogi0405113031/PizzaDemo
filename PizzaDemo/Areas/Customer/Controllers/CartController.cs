@@ -53,9 +53,21 @@ namespace PizzaDemo.Areas.Customer.Controllers
             ShoppingCartVM.OrderHeader.PhoneNumber = ShoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
             ShoppingCartVM.OrderHeader.Address = ShoppingCartVM.OrderHeader.ApplicationUser.Address;
 
+            double total = 0;
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
-                ShoppingCartVM.OrderHeader.OrderTotal += (cart.Product.Price * cart.Count);
+                total += (cart.Product.Price * cart.Count);
+            }
+
+            // 檢查是否有折扣
+            int? discount = HttpContext.Session.GetInt32("DiscountAmount");
+            if (discount.HasValue)
+            {
+                ShoppingCartVM.OrderHeader.OrderTotal = total - discount.Value;
+            }
+            else
+            {
+                ShoppingCartVM.OrderHeader.OrderTotal = total;
             }
 
             return View(ShoppingCartVM);
@@ -74,31 +86,52 @@ namespace PizzaDemo.Areas.Customer.Controllers
 
 			ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
 
-			foreach (var cart in ShoppingCartVM.ShoppingCartList)
-			{
-				ShoppingCartVM.OrderHeader.OrderTotal += (cart.Product.Price * cart.Count);
-			}
+            double total = 0;
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
+            {
+                total += (cart.Product.Price * cart.Count);
+            }
 
-			_unitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);
-			_unitOfWork.Save();
+            // 檢查是否有未完成的訂單（包含折扣後的金額）
+            var existingOrder = _unitOfWork.OrderHeader.Get(u => u.ApplicationUserId == userId && u.OrderStatus == null);
+            if (existingOrder != null)
+            {
+                // 使用已經折扣後的金額
+                ShoppingCartVM.OrderHeader.OrderTotal = existingOrder.OrderTotal;
+            }
+            else
+            {
+                // 如果沒有折扣，使用原始金額
+                ShoppingCartVM.OrderHeader.OrderTotal = total;
+            }
 
-			foreach (var cart in ShoppingCartVM.ShoppingCartList)
-			{
-				OrderDetail orderDetail = new()
-				{
-					ProductId = cart.ProductId,
-					OrderHeaderId = ShoppingCartVM.OrderHeader.Id,
+            _unitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);
+            _unitOfWork.Save();
+
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
+            {
+                OrderDetail orderDetail = new()
+                {
+                    ProductId = cart.ProductId,
+                    OrderHeaderId = ShoppingCartVM.OrderHeader.Id,
                     Cheese = cart.Cheese,
-					Crust = cart.Crust,
-					Price = cart.Product.Price,
-					Count = cart.Count
+                    Crust = cart.Crust,
+                    Price = cart.Product.Price,
+                    Count = cart.Count
+                };
+                _unitOfWork.OrderDetail.Add(orderDetail);
+                _unitOfWork.Save();
+            }
 
-				};
-				_unitOfWork.OrderDetail.Add(orderDetail);
-				_unitOfWork.Save();
-			}
+            // 刪除未完成的訂單（如果有）
+            if (existingOrder != null)
+            {
+                _unitOfWork.OrderHeader.Remove(existingOrder);
+                _unitOfWork.Save();
+            }
 
-			return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.Id });
+
+            return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.Id });
 		}
 		public IActionResult OrderConfirmation(int id)
 		{
@@ -135,24 +168,50 @@ namespace PizzaDemo.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public IActionResult ApplyCoupon(string code, int orderId)
+        public IActionResult ApplyCoupon(string code)
         {
-            if (code.ToUpper() == "SAVE100")
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (code == "SAVE100")
             {
-                var order = _unitOfWork.OrderHeader.Get(o => o.Id == orderId);
-                if (order != null)
-                {
-                    order.OrderTotal -= 100;
-                    _unitOfWork.Save();
+                var cartItems = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId,
+                    includeProperties: "Product").ToList();
 
-                    return Json(new
+                double total = cartItems.Sum(cart => cart.Product.Price * cart.Count);
+
+                var orderHeader = _unitOfWork.OrderHeader.Get(u => u.ApplicationUserId == userId && u.OrderStatus == null);
+                if (orderHeader == null)
+                {
+                    var applicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+
+                    orderHeader = new OrderHeader
                     {
-                        success = true,
-                        discount = 100,
-                        newTotal = order.OrderTotal,
-                        message = "折扣碼套用成功！"
-                    });
+                        ApplicationUserId = userId,
+                        OrderTotal = total - 100,
+                        OrderDate = DateTime.Now,
+                        // 添加必要的用戶信息
+                        Name = applicationUser.Name,
+                        PhoneNumber = applicationUser.PhoneNumber,
+                        Address = applicationUser.Address,
+                        ApplicationUser = applicationUser
+                    };
+                    _unitOfWork.OrderHeader.Add(orderHeader);
                 }
+                else
+                {
+                    orderHeader.OrderTotal = total - 100;
+                    _unitOfWork.OrderHeader.Update(orderHeader);
+                }
+
+                _unitOfWork.Save();
+                HttpContext.Session.SetInt32("DiscountAmount", 100);
+
+                return Json(new
+                {
+                    success = true,
+                    discount = 100,
+                    newTotal = total - 100,
+                    message = "折扣碼套用成功！"
+                });
             }
 
             return Json(new
